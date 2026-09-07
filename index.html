@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POS Cole - V9</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        
+        <header class="dashboard">
+            <div class="dash-header">
+                <h2>Mi Negocio</h2>
+                <button class="icon-btn" onclick="abrirConfiguracion()">Ajustes</button>
+            </div>
+
+            <div class="balances-grid">
+                <div class="card stat-card">
+                    <span class="label">Total Efectivo</span>
+                    <h3 class="money green" id="ui-efectivo">$0</h3>
+                </div>
+                <div class="card stat-card">
+                    <span class="label">Total Nequi</span>
+                    <h3 class="money purple" id="ui-nequi">$0</h3>
+                </div>
+            </div>
+
+            <div class="card mt-1 highlight-card">
+                <div class="flex-between mb-small">
+                    <span class="label">Meta de Ahorro Semanal</span>
+                    <span class="money small green"><span id="lbl-ahorro">$0</span> / <span id="lbl-meta">$0</span></span>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill fill-green" id="bar-meta"></div>
+                </div>
+                
+                <div class="libre-box mt-1">
+                    <span>Plata Libre (Uso personal):</span>
+                    <strong class="money orange" id="lbl-uso">$0</strong>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="section-header">
+                <h3>Inventario</h3>
+                <button class="btn-green small-btn" onclick="abrirModal('modal-producto')">Nuevo Dulce</button>
+            </div>
+            
+            <div class="products-list" id="ui-products-list">
+                <!-- Productos inyectados con JS -->
+            </div>
+
+            <button class="card btn-deudas mt-2" onclick="abrirModalDeudas()">Ver Pendientes y Fiados</button>
+        </main>
+    </div>
+
+    <!-- Modal: Cobrar -->
+    <div id="modal-cobro" class="modal hidden">
+        <div class="modal-content card">
+            <h3 id="cobro-titulo" class="text-center mb-1">Cobrar</h3>
+            
+            <div class="flex-between gap-1 mb-1">
+                <div class="input-group">
+                    <label>Cantidad</label>
+                    <input type="number" id="cobro-cantidad" class="input-box text-center" value="1" min="1" oninput="actualizarPrecioTotal()">
+                </div>
+                <div class="input-group">
+                    <label>Total ($)</label>
+                    <input type="number" id="cobro-precio" class="input-box text-center money blue" style="font-size: 1.2rem;">
+                </div>
+            </div>
+
+            <div class="input-group mb-1">
+                <label>Método de Pago</label>
+                <select id="cobro-metodo" class="input-box" onchange="verificarFiado()">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="nequi">Nequi</option>
+                    <option value="fiado">Me lo fían</option>
+                </select>
+            </div>
+            
+            <div class="input-group hidden mb-1" id="div-cliente">
+                <label>¿A quién le fías?</label>
+                <input type="text" id="cobro-cliente" class="input-box" placeholder="Nombre de la persona">
+            </div>
+            
+            <div class="flex-between gap-1 mt-2">
+                <button class="btn-outline" onclick="cerrarModal('modal-cobro')">Cancelar</button>
+                <button class="btn-primary" onclick="confirmarVenta()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ajustes -->
+    <div id="modal-config" class="modal hidden">
+        <div class="modal-content card">
+            <h3 class="text-center mb-1">Ajustes y Balance</h3>
+            
+            <div class="input-group mb-1">
+                <label>Meta de Ahorro Semanal ($)</label>
+                <input type="number" id="cfg-meta" class="input-box">
+            </div>
+            <div class="input-group mb-1">
+                <label>Plata Libre Actual (Modificar si la gastaste)</label>
+                <input type="number" id="cfg-libre" class="input-box">
+            </div>
+            <hr class="divider">
+            <p class="label mb-small">Cuadrar Caja del Negocio</p>
+            <div class="input-group mb-1">
+                <label>Efectivo del Negocio (Sin plata libre)</label>
+                <input type="number" id="cfg-efectivo" class="input-box">
+            </div>
+            <div class="input-group mb-1">
+                <label>Nequi del Negocio (Sin plata libre)</label>
+                <input type="number" id="cfg-nequi" class="input-box">
+            </div>
+            <div class="input-group mb-1">
+                <label>Capital de Inversión (Intocable)</label>
+                <input type="number" id="cfg-capital" class="input-box">
+            </div>
+            
+            <div class="flex-between gap-1 mt-2">
+                <button class="btn-outline" onclick="cerrarModal('modal-config')">Cerrar</button>
+                <button class="btn-primary" onclick="guardarConfig()">Guardar Balance</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ajustar Inventario -->
+    <div id="modal-inventario" class="modal hidden">
+        <div class="modal-content card">
+            <h3 id="inv-titulo" class="text-center mb-1">Ajustar Inventario</h3>
+            <input type="number" id="inv-cantidad" class="input-box text-center money green mb-1">
+            <div class="flex-between gap-1">
+                <button class="btn-outline" onclick="cerrarModal('modal-inventario')">Cancelar</button>
+                <button class="btn-primary" onclick="guardarInventarioManual()">Actualizar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nuevo Producto (Con paleta de colores predeterminados) -->
+    <div id="modal-producto" class="modal hidden">
+        <div class="modal-content card">
+            <h3 class="mb-1">Nuevo Dulce</h3>
+            <input type="text" id="nuevo-nombre" class="input-box mb-1" placeholder="Nombre">
+            <input type="number" id="nuevo-precio" class="input-box mb-1" placeholder="Precio de venta a público">
+            <input type="number" id="nuevo-costo-caja" class="input-box mb-1" placeholder="Costo de la caja completa">
+            <input type="number" id="nuevo-unidades" class="input-box mb-1" placeholder="¿Cuántas unidades trae?">
+            
+            <!-- Selector de color con paleta predeterminada amplia -->
+            <div class="input-group mb-1">
+                <label>Color identificador</label>
+                <div class="color-picker-grid" id="color-picker">
+                    <div class="color-option selected" style="background: #0a84ff;" data-color="#0a84ff" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #30d158;" data-color="#30d158" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #bf5af2;" data-color="#bf5af2" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #ff9f0a;" data-color="#ff9f0a" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #ff453a;" data-color="#ff453a" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #64d2ff;" data-color="#64d2ff" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #ff375f;" data-color="#ff375f" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #32d74b;" data-color="#32d74b" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #5e5ce6;" data-color="#5e5ce6" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #ffd60a;" data-color="#ffd60a" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #ac8e68;" data-color="#ac8e68" onclick="seleccionarColor(this)"></div>
+                    <div class="color-option" style="background: #636366;" data-color="#636366" onclick="seleccionarColor(this)"></div>
+                </div>
+            </div>
+
+            <div class="flex-between gap-1 mt-2">
+                <button class="btn-outline" onclick="cerrarModal('modal-producto')">Cancelar</button>
+                <button class="btn-primary" onclick="guardarProducto()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Deudas -->
+    <div id="modal-deudas" class="modal hidden">
+        <div class="modal-content card">
+            <h3 class="mb-1">Deudas Activas</h3>
+            <div id="lista-deudas" class="deudas-list"></div>
+            <button class="btn-outline mt-2 w-100" onclick="cerrarModal('modal-deudas')">Cerrar</button>
+        </div>
+    </div>
+    
+    <!-- Modal: Abono -->
+    <div id="modal-abono" class="modal hidden">
+        <div class="modal-content card">
+            <h3 class="text-center mb-1">Registrar Abono</h3>
+            <div class="input-group mb-1">
+                <label>¿Cuánto pagó?</label>
+                <input type="number" id="abono-monto" class="input-box text-center money green">
+            </div>
+            <div class="input-group mb-1">
+                <label>¿Dónde te lo dio?</label>
+                <select id="abono-metodo" class="input-box">
+                    <option value="efectivo">Efectivo</option>
+                    <option value="nequi">Nequi</option>
+                </select>
+            </div>
+            <div class="flex-between gap-1">
+                <button class="btn-outline" onclick="cerrarModal('modal-abono')">Cancelar</button>
+                <button class="btn-primary" onclick="confirmarAbono()">Abonar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
