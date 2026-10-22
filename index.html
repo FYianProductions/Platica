@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POS Cole - V9</title>
+    <title>POS Cole - V11</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -94,6 +94,25 @@
         </div>
     </div>
 
+    <!-- Modal: Comprar Paquete / Surtir -->
+    <div id="modal-surtir" class="modal hidden">
+        <div class="modal-content card">
+            <h3 id="surtir-titulo" class="text-center mb-1">Comprar Paquete</h3>
+            <div class="input-group mb-1">
+                <label>Costo del Paquete ($)</label>
+                <input type="number" id="surtir-costo" class="input-box" placeholder="Precio pagado con descuento">
+            </div>
+            <div class="input-group mb-1">
+                <label>Unidades que trae</label>
+                <input type="number" id="surtir-unidades" class="input-box">
+            </div>
+            <div class="flex-between gap-1 mt-2">
+                <button class="btn-outline" onclick="cerrarModal('modal-surtir')">Cancelar</button>
+                <button class="btn-primary" onclick="confirmarCompraPaquete()">Confirmar Compra</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal: Ajustes -->
     <div id="modal-config" class="modal hidden">
         <div class="modal-content card">
@@ -141,7 +160,7 @@
         </div>
     </div>
 
-    <!-- Modal: Nuevo Producto (Con paleta de colores predeterminados) -->
+    <!-- Modal: Nuevo Producto -->
     <div id="modal-producto" class="modal hidden">
         <div class="modal-content card">
             <h3 class="mb-1">Nuevo Dulce</h3>
@@ -150,7 +169,6 @@
             <input type="number" id="nuevo-costo-caja" class="input-box mb-1" placeholder="Costo de la caja completa">
             <input type="number" id="nuevo-unidades" class="input-box mb-1" placeholder="¿Cuántas unidades trae?">
             
-            <!-- Selector de color con paleta predeterminada amplia -->
             <div class="input-group mb-1">
                 <label>Color identificador</label>
                 <div class="color-picker-grid" id="color-picker">
@@ -176,9 +194,9 @@
         </div>
     </div>
 
-    <!-- Modal: Deudas -->
+    <!-- Modal: Deudas Agrupadas -->
     <div id="modal-deudas" class="modal hidden">
-        <div class="modal-content card">
+        <div class="modal-content card scrollable-modal">
             <h3 class="mb-1">Deudas Activas</h3>
             <div id="lista-deudas" class="deudas-list"></div>
             <button class="btn-outline mt-2 w-100" onclick="cerrarModal('modal-deudas')">Cerrar</button>
@@ -188,7 +206,7 @@
     <!-- Modal: Abono -->
     <div id="modal-abono" class="modal hidden">
         <div class="modal-content card">
-            <h3 class="text-center mb-1">Registrar Abono</h3>
+            <h3 id="abono-titulo" class="text-center mb-1">Registrar Abono</h3>
             <div class="input-group mb-1">
                 <label>¿Cuánto pagó?</label>
                 <input type="number" id="abono-monto" class="input-box text-center money green">
